@@ -45,6 +45,51 @@ public class Queue<T> {
         return "Queue: " + (this.front == null ? "" : this.front.toString());
     }
 
+    public boolean isRotation_easierToUnderstandButAlwaysTakesLonger(Queue<T> otherQueue) {
+        // step 1: check if they're different lengths by first calculating their lengths
+        int thisQueueLength = 0;
+        for (Node<T> current = this.front; current != null; current = current.next) {
+            thisQueueLength++;
+        }
+        int otherQueueLength = 0;
+        for (Node<T> current = otherQueue.front; current != null; current = current.next) {
+            otherQueueLength++;
+        }
+        // if they're different lengths, then they're definitely not rotations
+        if (thisQueueLength != otherQueueLength) {
+            return false;
+        }
+
+        // step 2, the real work
+        // if they're the same length, then check every possible position in otherQueue against the front of thisQueue
+        Node<T> otherQueueStart = otherQueue.front;
+        otherStartLoop: while(otherQueueStart != null) {
+            // check if starting at otherQueueStart in otherQueue matches starting at the front of thisQueue
+            Node<T> thisQueueCurrent = this.front;
+            Node<T> otherQueueCurrent = otherQueueStart;
+            while (thisQueueCurrent != null) {
+                // if we fell off the end of the other queue, reset to look at the front of that queue
+                if (otherQueueCurrent == null) {
+                    otherQueueCurrent = otherQueue.front;
+                }
+                // if the two current nodes don't match each other, then we've found a mismatch, this starting position is invalid
+                if (!thisQueueCurrent.value.equals(otherQueueCurrent.value)) {
+                    // this start location in otherQueue won't work!
+                    // move the otherQueueStart forward by one to try again next time through the outer loop.
+                    otherQueueStart = otherQueueStart.next;
+                    continue otherStartLoop;
+                }
+                // they matched! we're still good for now. move both pointers forward.
+                thisQueueCurrent = thisQueueCurrent.next;
+                otherQueueCurrent = otherQueueCurrent.next;
+            }
+            // if we made it all the way through that loop, then this starting position works! we found it!
+            return true;
+        }
+        // if no start position in the other queue works, then they are not rotations of each other
+        return false;
+    }
+
     public boolean isRotation(Queue<T> otherQueue) {
         // check each possible "starting" position in the other queue, starting at the front
         Node<T> otherQueueStart = otherQueue.front;
